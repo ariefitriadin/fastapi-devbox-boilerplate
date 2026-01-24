@@ -1,0 +1,54 @@
+--- Byte-compiled / optimized / DLL files ---
+
+pycache/
+*.py[cod]
+*$py.class
+
+--- C extensions ---
+
+*.so
+
+--- Environments ---
+
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+--- Devbox / Nix ---
+
+.devbox/
+.nix-profile/
+devbox.lock
+
+--- Database ---
+
+We ignore the specific virtenv data but keep the config
+
+.devbox/virtenv/postgresql/data/
+*.log
+.lock
+.s.PGSQL.
+
+--- Configuration & Secrets ---
+
+.env
+.env.*
+!.env.example
+
+--- IDEs ---
+
+.idea/
+.vscode/
+*.swp
+*.swo
+
+--- Testing ---
+
+.pytest_cache/
+nosetests.xml
+coverage.xml
+htmlcov/
+.flake8

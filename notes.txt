@@ -1,0 +1,7 @@
+To make your life easier (and help VS Code/PyCharm find your packages),
+Telling Poetry to put the virtual environment inside project folder.
+Run this once in your project:
+>  poetry config virtualenvs.in-project true
+
+when installing dependency never use pip install directly
+use poetry to register the dependency to pyproject.toml
