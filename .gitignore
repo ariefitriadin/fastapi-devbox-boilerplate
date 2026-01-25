@@ -52,3 +52,34 @@ nosetests.xml
 coverage.xml
 htmlcov/
 .flake8
+
+--- AI/ML Models & Data ---
+
+# Downloaded model weights
+data/models/**/*.pt
+data/models/**/*.pth
+data/models/**/*.bin
+data/models/**/*.onnx
+data/models/**/*.safetensors
+
+# Uploaded files
+data/uploads/*
+!data/uploads/.gitkeep
+
+# Processed data
+data/processed/*
+
+# Vector databases
+data/vectors/*
+*.faiss
+*.index
+
+# Embedding caches
+.embedding_cache/
+
+# LangChain/LangSmith
+.langchain/
+.langsmith/
+
+# Ollama logs (if running locally)
+ollama.log
