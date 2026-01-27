@@ -1,34 +1,127 @@
 {
-"packages": [
-    "python@3.13",
-    "poetry@latest",
-    "gcc@latest",
-    "postgresql@17",
-    "stdenv.cc.cc.lib",
-    "zlib"
-  ],
-  "env": {
-    "PYTHONPATH": ".:$PYTHONPATH",
-    "POWERLEVEL9K_INSTANT_PROMPT": "quiet",
-    "LD_LIBRARY_PATH": "$DEVBOX_PACKAGES_DIR/lib:$LD_LIBRARY_PATH",
-    "PGPORT": "5433",
-    "PGHOST": "/home/ari3/petprojects/python/apiboilerplate/.devbox/virtenv/postgresql",
-    "PGDATABASE": "postgres"
-  },
-  "shell": {
-    "init_hook": [
-      "echo 'Welcome to your Python/FastAPI environment!'",
-      "poetry config virtualenvs.in-project true",
-      "poetry install --no-root"
+    "packages": [
+        "python@3.12",
+        "poetry@latest",
+
+        // Database
+        "postgresql@17",
+        "redis@7.2",
+
+        // Build tools for Python packages
+        "gcc@latest",
+        "cmake@latest",
+        "pkg-config@latest",
+        "stdenv.cc.cc.lib",
+
+        // System libraries
+        "zlib",
+        "openssl",
+        "libffi",
+
+        // OpenCV dependencies (for YOLO)
+        "glib",
+        "ffmpeg",
+        "libGL",
+
+        // Utilities
+        "curl",
+        "wget",
+        "jq"
     ],
-    "scripts": {
-      "run_dev":    "poetry run uvicorn app.main:app --reload",
-      "alembic":    "poetry run alembic",
-      "test":       "poetry run pytest tests/",
-      "gen_docker": "devbox generate dockerfile",
-      "db_start": "pg_ctl -D $PGDATA -o \"-k $PGHOST -p $PGPORT\" start",
-      "db_stop":  "pg_ctl -D $PGDATA stop",
-      "db_status": "pg_ctl -D $PGDATA status"
+
+    "env": {
+        // Python
+        "PYTHONPATH": ".:$PYTHONPATH",
+        "PYTHONUNBUFFERED": "1",
+
+        // PostgreSQL
+        "PGPORT": "5433",
+        "PGHOST": "$DEVBOX_PROJECT_ROOT/.devbox/virtenv/postgresql",
+        "PGDATA": "$DEVBOX_PROJECT_ROOT/.devbox/virtenv/postgresql/data",
+        "PGDATABASE": "postgres",
+        "PGUSER": "$USER",
+
+        // Redis
+        "REDIS_PORT": "6379",
+        "REDIS_HOST": "localhost",
+
+        // Library paths
+        "LD_LIBRARY_PATH": "$DEVBOX_PACKAGES_DIR/lib:$LD_LIBRARY_PATH",
+        "PKG_CONFIG_PATH": "$DEVBOX_PACKAGES_DIR/lib/pkgconfig:$PKG_CONFIG_PATH",
+
+        // Suppress warnings
+        "POWERLEVEL9K_INSTANT_PROMPT": "quiet"
+    },
+
+    "shell": {
+        "init_hook": [
+            "echo '🚀 Welcome to FastAPI AI Development Environment!'",
+            "echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'",
+
+            // Poetry setup
+            "poetry config virtualenvs.in-project true",
+            "poetry install --no-root",
+
+            // Database setup
+            "mkdir -p $PGHOST",
+            "mkdir -p $PGDATA",
+            "if [ ! -f $PGDATA/PG_VERSION ]; then",
+            "  echo '📦 Initializing PostgreSQL database...'",
+            "  initdb -D $PGDATA",
+            "fi",
+
+            // Create data directories
+            "mkdir -p data/uploads",
+            "mkdir -p data/models/yolo",
+            "mkdir -p logs",
+
+            "echo '✅ Environment ready!'",
+            "echo ''",
+            "echo 'Quick commands:'",
+            "echo '  devbox run db_start    - Start PostgreSQL'",
+            "echo '  devbox run redis_start - Start Redis'",
+            "echo '  devbox run dev         - Start FastAPI server'",
+            "echo '  devbox run worker      - Start Celery worker'",
+            "echo '  devbox run test        - Run tests'"
+        ],
+
+        "scripts": {
+            // Development
+            "dev": "poetry run uvicorn app.main:app --reload --port 8000",
+            "worker": "poetry run celery -A app.workers.celery_app worker --loglevel=info",
+            "flower": "poetry run celery -A app.workers.celery_app flower --port=5555",
+
+            // Database
+            "db_start": "pg_ctl -D $PGDATA -o \"-k $PGHOST -p $PGPORT\" start",
+            "db_stop": "pg_ctl -D $PGDATA stop",
+            "db_status": "pg_ctl -D $PGDATA status",
+            "db_shell": "psql -h $PGHOST -p $PGPORT -d postgres",
+            "db_reset": "rm -rf $PGDATA && initdb -D $PGDATA && devbox run db_start",
+
+            // Redis
+            "redis_start": "redis-server --port $REDIS_PORT --daemonize yes",
+            "redis_stop": "redis-cli -p $REDIS_PORT shutdown",
+            "redis_cli": "redis-cli -p $REDIS_PORT",
+
+            // Migrations
+            "migrate": "poetry run alembic upgrade head",
+            "migrate_create": "poetry run alembic revision --autogenerate -m",
+            "migrate_down": "poetry run alembic downgrade -1",
+
+            // Testing
+            "test": "poetry run pytest tests/ -v",
+            "test_cov": "poetry run pytest tests/ --cov=app --cov-report=html",
+
+            // AI Services
+            "test_ollama": "poetry run python examples/test_ollama.py",
+            "download_yolo": "mkdir -p data/models/yolo && cd data/models/yolo && wget -nc https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt || true",
+
+            // Cleanup
+            "clean": "find . -type d -name __pycache__ -exec rm -rf {} + && find . -type f -name '*.pyc' -delete",
+
+            // Docker
+            "docker_build": "docker build -t fastapi-ai -f deployment/docker/Dockerfile .",
+            "docker_run": "docker-compose -f deployment/docker/docker-compose.yml up"
+        }
     }
-  }
 }
