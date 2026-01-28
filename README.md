@@ -7,6 +7,7 @@ Build AI-powered applications with **zero cost during development** using local 
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-green.svg)](https://fastapi.tiangolo.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Wiki](https://img.shields.io/badge/docs-wiki-blue.svg)](https://github.com/ariefitriadin/fastapi-devbox-boilerplate/wiki)
 
 ---
 
